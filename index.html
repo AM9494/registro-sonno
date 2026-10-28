@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Registro del sonno</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1d2133;--mu:#6b7189;--aw:#fdebd0;--sl:#4f5bd5;--bd:#e3e6f0;--dg:#d33;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141c;--card:#1c1f2b;--tx:#eceef6;--mu:#9aa0b8;--aw:#4a3a22;--sl:#8792ff;--bd:#2c3040;--dg:#ff6b6b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12141c;--card:#1c1f2b;--tx:#eceef6;--mu:#9aa0b8;--aw:#4a3a22;--sl:#8792ff;--bd:#2c3040;--dg:#ff6b6b;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:560px;margin:0 auto;padding:14px}
+h1{font-size:20px;margin:4px 0 12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:12px}
+button{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:12px;padding:11px 14px}
+button.p{background:var(--sl);color:#fff;border-color:var(--sl)}
+button.d{color:var(--dg)}
+#go{width:100%;font-size:19px;padding:18px;font-weight:600}
+#el{text-align:center;color:var(--mu);margin:8px 0 0;font-variant-numeric:tabular-nums;min-height:22px}
+.tabs{display:flex;gap:8px;margin-bottom:12px}.tabs button{flex:1}
+.tabs button.on{background:var(--sl);color:#fff;border-color:var(--sl)}
+.tl{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px}.in{width:max-content}
+.row{display:flex;align-items:center;margin:5px 0}
+.row b{width:78px;padding-right:8px;position:sticky;left:0;z-index:2;background:var(--card);font-size:12px;font-weight:500;color:var(--mu);flex:none}
+.bar{position:relative;flex:none;width:1008px;height:28px;border-radius:6px;background-color:var(--aw);background-image:linear-gradient(90deg,rgba(128,128,128,.28) 1px,transparent 1px);background-size:4.1667% 100%;overflow:hidden}
+.bar i{position:absolute;top:0;bottom:0;background:var(--sl);min-width:3px;cursor:pointer}
+.bar i.live{opacity:.65}
+.axis{position:relative;flex:none;width:1008px;height:16px;font-size:11px;color:var(--mu)}
+.axis span{position:absolute;transform:translateX(-50%)}
+.axis span:first-child{transform:none}.axis span:last-child{transform:translateX(-100%)}
+.leg{display:flex;gap:14px;font-size:12px;color:var(--mu);margin-top:10px}
+.leg u{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;text-decoration:none}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;margin-bottom:12px}
+.stats div{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 4px}
+.stats b{display:block;font-size:18px}.stats span{font-size:12px;color:var(--mu)}
+h3{margin:0 0 8px;font-size:15px}
+svg text{fill:var(--mu);font-size:9px}
+#sh{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+#sh[hidden]{display:none}
+#sh .card{width:100%;max-width:560px;margin:0;border-radius:18px 18px 0 0;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+label{display:block;font-size:13px;color:var(--mu);margin-bottom:10px}
+input,textarea{display:block;width:100%;margin-top:4px;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:9px}
+.btns{display:flex;gap:8px}.btns button{flex:1}
+#lg{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;z-index:30}
+#lg[hidden]{display:none}#lg .card{width:100%;max-width:360px;margin:0}
+</style></head>
+<body><main>
+<h1>😴 Registro del sonno <small style="font-size:11px;color:var(--mu);font-weight:400">v5</small></h1>
+<div class="card">
+  <button id="go" class="p"></button>
+  <div id="el"></div>
+  <div id="st" style="text-align:center;font-size:12px;color:var(--dg);margin-top:6px"></div>
+  <button id="man" style="width:100%;margin-top:10px">+ Aggiungi riposino manualmente</button>
+</div>
+<div class="tabs"><button id="t1" class="on">Registro</button><button id="t2">Grafici</button></div>
+<div id="v"></div>
+<p style="text-align:center"><button id="out">Esci</button></p>
+</main>
+<div id="lg"><div class="card"><h3>🔒 Registro del sonno</h3><label>Password<input type="password" id="pw" autocomplete="current-password"></label><div class="btns"><button id="in" class="p">Entra</button></div><div id="le" style="color:var(--dg);font-size:13px;margin-top:8px"></div></div></div>
+<div id="sh" hidden><div class="card">
+  <h3 id="sht"></h3>
+  <label>Inizio<input type="datetime-local" id="fs"></label>
+  <label>Fine<input type="datetime-local" id="fe"></label>
+  <label>Note<textarea id="fn" rows="3" placeholder="Es. si è addormentata in braccio"></textarea></label>
+  <div class="btns"><button id="sv" class="p">Salva</button><button id="dl" class="d">Elimina</button><button id="cl">Chiudi</button></div>
+</div></div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {initializeFirestore,persistentLocalCache,collection,doc,query,where,setDoc,deleteDoc,writeBatch,onSnapshot} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg={apiKey:"AIzaSyBS2GsXIXtqOHfc9s8YxaPalu8s9-HQl7c",authDomain:"diario-sonno-38ab8.firebaseapp.com",projectId:"diario-sonno-38ab8",storageBucket:"diario-sonno-38ab8.firebasestorage.app",messagingSenderId:"838867491481",appId:"1:838867491481:web:963c5b5ae4bc0c71bdf608"};
+const MAIL="famiglia@registro-sonno.app";
+const app=initializeApp(cfg),auth=getAuth(app),fs=initializeFirestore(app,{localCache:persistentLocalCache()});
+const $=s=>document.querySelector(s),DAY=864e5,H=36e5;
+let S={naps:[],active:0},tab='log',range=7,edit=null,tick=0,delArm=false,sx=null,unsubs=[];
+const sod=t=>{const d=new Date(t);d.setHours(0,0,0,0);return d.getTime()};
+const addD=(t,n)=>{const d=new Date(t);d.setDate(d.getDate()+n);return d.getTime()};
+const fT=t=>new Date(t).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+const fD=t=>new Date(t).toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
+const fDur=ms=>{const m=Math.round(ms/6e4),h=Math.floor(m/60);return h?h+' h '+String(m%60).padStart(2,'0')+' min':m+' min'};
+const loc=t=>new Date(t-new Date(t).getTimezoneOffset()*6e4).toISOString().slice(0,16);
+const all=()=>S.naps.concat(S.active?[{id:'live',s:S.active,e:Date.now(),note:'',live:1}]:[]);
+const stat=m=>{const e=$('#st');if(e)e.textContent=m||''};
+const er=e=>stat('Errore ('+((e&&(e.code||e.message))||'sconosciuto')+')');
+window.addEventListener('error',e=>stat('Errore: '+e.message));
+const nid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+function listen(){stop();
+  const q=query(collection(fs,'naps'),where('s','>=',Date.now()-60*DAY));
+  unsubs.push(onSnapshot(q,s=>{S.naps=s.docs.map(d=>d.data()).sort((a,b)=>a.s-b.s);render()},er));
+  unsubs.push(onSnapshot(doc(fs,'state','timer'),s=>{S.active=(s.exists()&&s.data().active)||0;render()},er))}
+function stop(){unsubs.forEach(f=>f());unsubs=[]}
+onAuthStateChanged(auth,u=>{if(u){$('#lg').hidden=true;listen()}else{stop();S={naps:[],active:0};render();$('#lg').hidden=false}});
+$('#in').onclick=async()=>{$('#le').textContent='';try{await signInWithEmailAndPassword(auth,MAIL,$('#pw').value);$('#pw').value=''}catch(e){$('#le').textContent=(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password')?'Password errata':'Accesso non riuscito ('+e.code+')'}};
+$('#pw').onkeydown=e=>{if(e.key==='Enter')$('#in').click()};
+$('#out').onclick=()=>signOut(auth);
+$('#go').onclick=()=>{
+  if(S.active){const b=writeBatch(fs),n={id:nid(),s:S.active,e:Date.now(),note:''};b.set(doc(fs,'naps',n.id),n);b.set(doc(fs,'state','timer'),{active:0});b.commit().catch(er)}
+  else setDoc(doc(fs,'state','timer'),{active:Date.now()}).catch(er)};
+$('#man').onclick=()=>{const n=Date.now();openSheet(null,n-H,n)};
+$('#t1').onclick=()=>{tab='log';render()};$('#t2').onclick=()=>{tab='ch';render()};
+$('#cl').onclick=()=>{$('#sh').hidden=true};
+$('#sh').onclick=e=>{if(e.target.id==='sh')$('#sh').hidden=true};
+function openSheet(id,s,e,note){edit=id;delArm=false;$('#sht').textContent=id?'Dettaglio riposino':'Nuovo riposino';
+  $('#fs').value=loc(s);$('#fe').value=loc(e);$('#fn').value=note||'';
+  $('#dl').hidden=!id;$('#dl').textContent='Elimina';$('#sh').hidden=false}
+$('#sv').onclick=()=>{const s=new Date($('#fs').value).getTime(),e=new Date($('#fe').value).getTime();
+  if(!(e>s)){$('#sht').textContent='La fine deve essere dopo l’inizio';return}
+  const id=edit||nid();setDoc(doc(fs,'naps',id),{id,s,e,note:$('#fn').value.trim()}).catch(er);$('#sh').hidden=true};
+$('#dl').onclick=()=>{if(!delArm){delArm=true;$('#dl').textContent='Tocca ancora per confermare';return}
+  deleteDoc(doc(fs,'naps',edit)).catch(er);$('#sh').hidden=true};
+$('#v').onclick=e=>{const i=e.target.closest('i[data-id]');if(i&&i.dataset.id!=='live'){const n=S.naps.find(x=>x.id===i.dataset.id);if(n)openSheet(n.id,n.s,n.e,n.note)}
+  const r=e.target.closest('[data-r]');if(r){range=+r.dataset.r;render()}};
+function timeline(){
+  const today=sod(Date.now()),ns=all();
+  let h='<div class="card"><div class="tl" id="tl"><div class="in"><div class="row"><b></b><div class="axis">'+Array.from({length:25},(_,x)=>`<span style="left:${x/24*100}%">${x}</span>`).join('')+'</div></div>';
+  for(let i=0;i<14;i++){const a=addD(today,-i),b=addD(a,1);let bars='';
+    for(const n of ns){const s=Math.max(n.s,a),e=Math.min(n.e,b);
+      if(e>s)bars+=`<i class="${n.live?'live':''}" data-id="${n.id}" style="left:${(s-a)/(b-a)*100}%;width:${(e-s)/(b-a)*100}%"></i>`}
+    h+=`<div class="row"><b>${fD(a)}</b><div class="bar">${bars}</div></div>`}
+  h+='</div></div><div class="leg"><span><u style="background:var(--sl)"></u>Dorme</span><span><u style="background:var(--aw)"></u>Sveglia</span><span>Scorri per vedere tutte le ore · tocca un blocco per le note</span></div></div>';
+  if(!ns.length)h+='<p style="color:var(--mu);text-align:center">Ancora nessun riposino registrato.</p>';
+  return h}
+
+function charts(){
+  const today=sod(Date.now()),ns=all(),N=range,prof=new Array(24).fill(0),tot=[];
+  for(let i=N-1;i>=0;i--){const a=addD(today,-i),b=addD(a,1);let t=0;
+    for(let h=0;h<24;h++){const hs=a+h*H,he=hs+H;
+      for(const n of ns){const o=Math.min(n.e,he)-Math.max(n.s,hs);if(o>0){prof[h]+=o/H/N;t+=o}}}
+    tot.push(t/H)}
+  const from=addD(today,-(N-1)),inr=ns.filter(n=>n.s>=from);
+  const avgTot=tot.reduce((x,y)=>x+y,0)/N,cnt=inr.length/N,avgD=inr.length?inr.reduce((x,n)=>x+n.e-n.s,0)/inr.length:0;
+  const bars=(vals,max,lab,w)=>{const bw=300/vals.length;
+    return `<svg viewBox="0 0 330 130" width="100%">`+vals.map((v,k)=>`<rect x="${26+k*bw+1}" y="${105-v/max*95}" width="${Math.max(bw-2,1)}" height="${v/max*95}" rx="2" style="fill:var(--sl)"/>`).join('')+
+    [0,.5,1].map(f=>`<text x="22" y="${108-f*95}" text-anchor="end">${lab(f*max)}</text>`).join('')+
+    vals.map((v,k)=>lab.x(k)?`<text x="${26+k*bw+bw/2}" y="122" text-anchor="middle">${lab.x(k)}</text>`:'').join('')+'</svg>'};
+  const l1=f=>Math.round(f*100)+'%';l1.x=k=>k%3===0?k:'';
+  const l2=f=>(Math.round(f*10)/10)+'h';l2.x=k=>(N===7||k%5===4||k===0)?fDshort(addD(from,k)):'';
+  const mx=Math.max(.01,...tot,1);
+  return `<div class="tabs"><button data-r="7" class="${N===7?'on':''}">Settimana</button><button data-r="30" class="${N===30?'on':''}">Mese</button></div>
+  <div class="stats"><div><b>${fDur(avgTot*H)}</b><span>sonno al giorno</span></div><div><b>${cnt.toFixed(1)}</b><span>riposini al giorno</span></div><div><b>${inr.length?fDur(avgD):'–'}</b><span>durata media</span></div></div>
+  <div class="card"><h3>In quali ore dorme (media ${N} giorni)</h3>${bars(prof,Math.max(.2,Math.ceil(Math.max(...prof)*5)/5),l1,0)}<div class="leg">Ora del giorno: % di tempo trascorso a dormire</div></div>
+  <div class="card"><h3>Ore di sonno per giorno</h3>${bars(tot,Math.max(4,Math.ceil(Math.max(...tot))),l2,0)}</div>`}
+const fDshort=t=>new Date(t).toLocaleDateString('it-IT',{day:'numeric',month:'numeric'});
+
+function render(){
+  const a=S.active;$('#go').textContent=a?'⏹ Fine sonno':'▶ Inizia sonno';
+  $('#go').className=a?'':'p';$('#el').textContent=a?'Dorme da '+fDur(Date.now()-a)+' (dalle '+fT(a)+')':'';
+  $('#t1').className=tab==='log'?'on':'';$('#t2').className=tab==='ch'?'on':'';
+  const t0=$('#tl');if(t0)sx=t0.scrollLeft;
+  $('#v').innerHTML=tab==='log'?timeline():charts();
+  const t1=$('#tl');if(t1)t1.scrollLeft=sx===null?Math.max(0,(new Date().getHours()-5)*42):sx}
+setInterval(()=>{if(S.active){$('#el').textContent='Dorme da '+fDur(Date.now()-S.active)+' (dalle '+fT(S.active)+')';if(++tick%30===0)render()}},1000);
+render();
+</script></body></html>
